@@ -13,61 +13,105 @@ the License.
 -->
 
 <form id="replication" class="form-horizontal">
-		<div class="from form_set  local">
-			<div class="btn-group">
-			  <button class="btn local-btn" type="button" value="local">Local</button>
-			  <button class="btn remote-btn" type="button" value="remote">Remote</button>
-			</div>
+	<!-- SOURCE -->
+	<div class="row span12" id="step1">
+		<div class="span2">
+			<h3>FROM: </h3>
+		</div>
+		<div class="source span10">
+			<p>Select a database to replicate.</p>
+			<ul class="nav nav-tabs" id="sourceTabs">
+			  <li class="active">
+			  	<a class="btn local-btn" data-tab="source_local" href="#">My Databases</a>
+			  </li>
+			  <li>
+			  	<a class="btn remote-btn"  data-tab="source_remote" href="#">Remote Database</a>
+			  </li>
+			</ul>
 
-			<div class="from_local local_option">
-				<select id="from_name" name="source">
-					<% _.each( databases, function( db, i ){ %>
-					   <option value="<%=db.name%>" <% if(selectedDB == db.name){%>selected<%}%> ><%=db.name%></option>
-					<% }); %>
-				</select>
+			<div class="tab-content small-tabs">
+				<div class="tab-pane active" id="source_local">
+					<select id="from_name" name="source">
+							<option value="">Select a database</option>
+						<% _.each( databases, function( db, i ){ %>
+						  <option value="<%=db.name%>" <% if(selectedDB == db.name){%>selected<%}%> ><%=db.name%></option>
+						<% }); %>
+					</select>
+				</div>
+
+				<div class="tab-pane" id="source_remote">
+					<input type="text" id="from_url" name="source" size="30" value="http://">
+					<small>e.g. http://username:password@user.cloudant.com/database</small>
+				</div>
 			</div>
-			<div class="from_to_remote remote_option">
-				<input type="text" id="from_url" name="source" size="30" value="http://">
+			<div id="options-here">
 			</div>
 		</div>
+	</div>
 
-		<div class="form_set middle">
-			<span class="circle "></span>
-				<a href="#" title="Switch Target and Source" class="swap">
-					<span class="fonticon-swap-arrows"></span>
-				</a>
-			</span>
+	<div class="row span12" id="step2">
+		<div class="span2">
+			<h3>TO:</h3>
 		</div>
-
-		<div class="to form_set local">
-			<div class="btn-group">
-			  <button class="btn local-btn" type="button" value="local">Local</button>
-			  <button class="btn remote-btn" type="button" value="remote">Remote</button>
-			</div>
-			<div class="to_local local_option">
-				<input type="text" id="to_name" name="target" size="30" placeholder="database name">
-			</div>
-
-			<div class="to_remote remote_option">
-				<input type="text" id="to_url" name="target" size="30" value="http://">
+		<div class="target span10">
+			<p>Where do you want to replicate your data?</p>
+			<div class="btn-group" id="create_target">
+			  <button class="btn active" type="button" value="false">Existing Database</button>
+			  <button class="btn" type="button" value="true">New Database</button>
+			  <input type="checkbox" name="create_target" value="true" class="hide"/>
 			</div>
 		</div>
+	</div>
 
+	<!--TARGET-->
+	<div class="row span12" id="step3">
+		<div class="span2">
+		</div>
+		<div class="target span10">
+			<p>Select a target database for your database.</p>
+			<ul class="nav nav-tabs" id="targetTabs">
+			  <li class="active">
+			  	<a href="#" class="btn local-btn" data-tab="target_local">My Databases</a>
+			  </li>
+			  <li>
+			  	<a  href="#" class="btn remote-btn"  data-tab="target_remote">Remote Database</a>
+			  </li>
+			</ul>
 
-	<div class="actions">
-		<div class="control-group">
+			<div class="tab-content small-tabs">
+				<div class="tab-pane active" id="target_local">
+						<input type="text" id="to_name" name="target" size="30" placeholder="Select a target database">
+				</div>
+
+				<div class="tab-pane" id="target_remote">
+					<input type="text" id="to_url" name="target" size="30" value="http://">
+					<small>e.g. http://username:password@user.cloudant.com/database</small>
+				</div>
+			</div>
+
 			<label for="continuous">
 				<input type="checkbox" name="continuous" value="true" id="continuous">
 				Continuous
 			</label>
 
-			<label for="createTarget">
-				<input type="checkbox" name="create_target" value="true" id="createTarget">
-				Create Target <a href="<%=getDocUrl('replication_doc')%>" target="_blank"><i class="icon-question-sign" rel="tooltip" title="Create the target database"></i></a>
-			</label>
 		</div>
 
-		<button class="btn btn-success btn-large save" type="submit">Replicate</button>
+	</div>
+	<div class="row span12" id="step1">
+		<div class="span2">
+			<h3>NAME: </h3>
+		</div>
+		<div class="source span10">
+			<p>Give this replication task an ID. (optional)</p>
+				<input type="text" id="repID" name="_id" size="30" value="" placeholder="e.g. my_rep">
+		</div>
+	</div>
+
+
+
+
+	<div class="actions">
+		<button class="button green save fonticon-replicate" type="submit">Replicate</button>
 	</div>
 </form>
 

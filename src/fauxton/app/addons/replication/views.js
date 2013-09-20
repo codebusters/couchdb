@@ -46,9 +46,9 @@ function(app, FauxtonAPI, Components, replication) {
     template: "addons/replication/templates/form",
     events:  {
       "submit #replication": "validate",
-      "click .btn-group .btn": "showFields",
-      "click .swap": "swapFields",
-      "click .options": "toggleAdvancedOptions"
+      "click .options": "toggleAdvancedOptions",
+      "click .nav-tabs a": "tabs",
+      "change #from_name": "showAdvancedOptions"
     },
     initialize: function(options){
       this.status = options.status;
@@ -62,9 +62,7 @@ function(app, FauxtonAPI, Components, replication) {
       });
 
       this.dbSearchTypeahead.render();
-
     },
-
     beforeRender:  function(){
       this.insertView("#replicationStatus", new View.ReplicationList({
         collection: this.status
@@ -78,16 +76,6 @@ function(app, FauxtonAPI, Components, replication) {
     },
     disableFields: function(){
       this.$el.find('input:hidden','select:hidden').attr('disabled',true);
-    },
-    showFields: function(e){
-      var $currentTarget = this.$(e.currentTarget),
-      targetVal = $currentTarget.val();
-
-      if (targetVal === "local"){
-        $currentTarget.parents('.form_set').addClass('local');
-      }else{
-        $currentTarget.parents('.form_set').removeClass('local');
-      }
     },
     establish: function(){
       return [ this.collection.fetch(), this.status.fetch()];
@@ -130,6 +118,10 @@ function(app, FauxtonAPI, Components, replication) {
         selectedDB: this.selectedDB
       };
     },
+    showAdvancedOptions:  function(e){
+      var thisview = this.insertView("#options-here", new View.AdvancedOptions({}));
+      thisview.render();
+    },
     startReplication: function(json){
       var that = this;
       this.newRepModel.save(json,{
@@ -153,7 +145,22 @@ function(app, FauxtonAPI, Components, replication) {
         }
       });
       this.enableFields();
-    },		
+    },
+    tabs: function(e){
+      e.preventDefault();
+      var $currentTarget = this.$(e.currentTarget),
+          getTabID = "#"+$currentTarget.attr('data-tab');
+
+      $currentTarget.parents('ul').find('.active').removeClass('active');
+      $currentTarget.parents('li').addClass('active');
+
+      $(getTabID).parents('.tab-content').find('.active').removeClass('active');
+      $(getTabID).addClass('active');
+    },	
+    toggleAdvancedOptions:  function(e){
+      $(e.currentTarget).toggleClass("off");
+      $('.advancedOptions').toggle("hidden").find('input').removeAttr('disabled');
+    },
     updateButtonText: function(wait){
       var $button = this.$('#replication button[type=submit]');
       if(wait){
@@ -173,30 +180,17 @@ function(app, FauxtonAPI, Components, replication) {
 
       this.updateButtonText(true);
       this.startReplication(formJSON);
-    },	
-    swapFields: function(e){
-      e.preventDefault();
-      //WALL O' VARIABLES
-      var $fromSelect = this.$('#from_name'),
-          $toSelect = this.$('#to_name'),
-          $toInput = this.$('#to_url'),
-          $fromInput = this.$('#from_url'),
-          fromSelectVal = $fromSelect.val(),
-          fromInputVal = $fromInput.val(),
-          toSelectVal = $toSelect.val(),
-          toInputVal = $toInput.val();
-
-      $fromSelect.val(toSelectVal);
-      $toSelect.val(fromSelectVal);
-
-      $fromInput.val(toInputVal);
-      $toInput.val(fromInputVal);
     }
+  });
+
+  View.AdvancedOptions = FauxtonAPI.View.extend({
+    template: "addons/replication/templates/options"
   });
 
 
   View.ReplicationList = FauxtonAPI.View.extend({
     tagName: "ul",
+    className:  "testing",
     initialize:  function(){
       Events.bind('update:tasks', this.establish, this);
       this.listenTo(this.collection, "reset", this.render);
